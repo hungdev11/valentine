@@ -260,6 +260,12 @@
 
   <!-- Khung Người nhận (Receiver View) -->
   <div id="receiver-view" class="w-full max-w-md bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-2xl hidden relative overflow-hidden">
+    <!-- Nút điều khiển âm thanh nổi bật ở góc phải -->
+    <button type="button" id="recv-music-btn" class="absolute top-4 right-4 z-40 px-2.5 py-1.5 rounded-full bg-slate-900/90 border border-pink-500/60 text-pink-400 hover:text-pink-300 text-xs flex items-center gap-1.5 shadow-lg transition active:scale-95 cursor-pointer">
+      <span id="recv-music-icon" class="text-sm">🎵</span>
+      <span id="recv-music-label" class="text-[10px] font-semibold">Bật nhạc</span>
+    </button>
+
     <!-- Màn hình 1: Hộp quà mở khóa nhạc -->
     <div id="recv-screen-1" class="text-center py-6 space-y-6">
       <div>
@@ -440,6 +446,9 @@
       </button>
     </div>
   </div>
+
+  <!-- Phần tử Audio DOM chuẩn cho toàn bộ trang -->
+  <audio id="bg-audio" preload="auto" loop playsinline></audio>
 
   <!-- Trình phát ngầm YouTube Audio 100% ẩn, không khung video mini -->
   <iframe id="yt-audio-player" class="fixed bottom-0 right-0 w-[1px] h-[1px] opacity-[0.01] pointer-events-none -z-10" allow="autoplay; encrypted-media" src=""></iframe>
@@ -1073,7 +1082,6 @@
     // --- Phân hệ Người nhận (Receiver Puzzle Controller) ---
     let audioCtx = null;
     let bgmInterval = null;
-    let customAudioEl = null;
 
     let currentQIdx = 0;
     let currentCardIdx = 0;
@@ -1081,15 +1089,56 @@
     let acceptScale = 1.0;
 
     const ROMANTIC_PRESETS = {
-      until_i_found_you: "https://raw.githubusercontent.com/cimaepanlop/until-i-found-you.mp3/main/until-i-found-you.mp3",
-      perfect: "https://raw.githubusercontent.com/DarkDevil1613/valentine/main/love.mp3",
-      beautiful_in_white: "https://raw.githubusercontent.com/Bocha-Dev/beautiful-in-white.mp3/main/Shane_Filan_-_Beautiful_In_White_(mp3.pm).mp3",
-      canon_in_d: "https://raw.githubusercontent.com/Shelon349/canon-in-d-mp3/main/Canon%20and%20Gigue%20in%20D%20major%20(1).mp3"
+      until_i_found_you: "music/until_i_found_you.mp3",
+      perfect: "music/perfect.mp3",
+      beautiful_in_white: "music/beautiful_in_white.mp3",
+      canon_in_d: "music/canon_in_d.mp3",
+      canon: "music/canon_in_d.mp3",
+      fur_elise: "music/until_i_found_you.mp3",
+      lofi: "music/perfect.mp3"
     };
+
+    function resolveAudioSource(preset, customUrl) {
+      if (preset === "custom" || preset === "upload") {
+        if (customUrl) return customUrl;
+      }
+      const localRel = ROMANTIC_PRESETS[preset] || ROMANTIC_PRESETS.until_i_found_you;
+      if (window.location.protocol === "file:") {
+        return localRel;
+      }
+      try {
+        return new URL(localRel, window.location.href.split("#")[0]).href;
+      } catch (e) {
+        return "https://hungdev11.github.io/valentine/" + localRel;
+      }
+    }
+
+    function updateMusicButtonState(isPlaying) {
+      const icon = document.getElementById("recv-music-icon");
+      const label = document.getElementById("recv-music-label");
+      const btn = document.getElementById("recv-music-btn");
+      if (!icon || !label || !btn) return;
+
+      if (isPlaying) {
+        icon.textContent = "🎵";
+        icon.className = "text-sm animate-pulse";
+        label.textContent = "Đang phát";
+        btn.className = "absolute top-4 right-4 z-40 px-2.5 py-1.5 rounded-full bg-slate-900/90 border border-emerald-500/60 text-emerald-400 text-xs flex items-center gap-1.5 shadow-lg transition active:scale-95 cursor-pointer";
+      } else {
+        icon.textContent = "🔇";
+        icon.className = "text-sm";
+        label.textContent = "Bật nhạc";
+        btn.className = "absolute top-4 right-4 z-40 px-2.5 py-1.5 rounded-full bg-slate-900/90 border border-pink-500/60 text-pink-400 text-xs flex items-center gap-1.5 shadow-lg transition active:scale-95 cursor-pointer animate-bounce";
+      }
+    }
 
     function playRomanticBGM(preset, customUrl, youtubeId) {
       stopRomanticBGM();
 
+      const bgAudio = document.getElementById("bg-audio");
+      if (!bgAudio) return;
+
+      let audioSrc = "";
       if (preset === "youtube") {
         const yId = youtubeId || extractYouTubeId(customUrl || "");
         if (yId) {
@@ -1098,45 +1147,39 @@
             const originParam = window.location.protocol.startsWith("http") ? window.location.origin : "https://www.youtube-nocookie.com";
             ytAudio.src = `https://www.youtube-nocookie.com/embed/${yId}?autoplay=1&enablejsapi=1&loop=1&playlist=${yId}&playsinline=1&origin=${encodeURIComponent(originParam)}`;
           }
-          return;
+        }
+        // Fallback âm thanh mp3 phòng trường hợp mobile chặn autoplay YouTube cross-origin
+        audioSrc = resolveAudioSource("until_i_found_you");
+      } else {
+        audioSrc = resolveAudioSource(preset, customUrl);
+      }
+
+      if (audioSrc) {
+        bgAudio.src = audioSrc;
+        bgAudio.volume = 0.85;
+        const playPromise = bgAudio.play();
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            updateMusicButtonState(true);
+          }).catch(err => {
+            console.log("Audio autoplay waiting for user gesture:", err);
+            updateMusicButtonState(false);
+          });
         }
       }
-
-      let audioUrl = "";
-      if (preset === "custom" || preset === "upload") {
-        audioUrl = customUrl;
-      } else if (ROMANTIC_PRESETS[preset]) {
-        audioUrl = ROMANTIC_PRESETS[preset];
-      } else if (preset === "canon") {
-        audioUrl = ROMANTIC_PRESETS.canon_in_d;
-      } else if (preset === "fur_elise") {
-        audioUrl = ROMANTIC_PRESETS.until_i_found_you;
-      } else if (preset === "lofi") {
-        audioUrl = ROMANTIC_PRESETS.perfect;
-      } else {
-        audioUrl = ROMANTIC_PRESETS.until_i_found_you;
-      }
-
-      if (!audioUrl) return;
-
-      customAudioEl = new Audio(audioUrl);
-      customAudioEl.loop = true;
-      customAudioEl.volume = 0.85;
-      customAudioEl.play().catch(e => {
-        console.log("Audio autoplay deferred until interaction:", e);
-      });
     }
 
     function stopRomanticBGM() {
-      if (customAudioEl) {
-        customAudioEl.pause();
-        customAudioEl.currentTime = 0;
-        customAudioEl = null;
+      const bgAudio = document.getElementById("bg-audio");
+      if (bgAudio) {
+        bgAudio.pause();
+        bgAudio.currentTime = 0;
       }
       const ytAudio = document.getElementById("yt-audio-player");
       if (ytAudio) {
         ytAudio.src = "";
       }
+      updateMusicButtonState(false);
     }
 
     function playSuccessChime() {
@@ -1471,12 +1514,54 @@
     }
 
     function initReceiverEventListeners() {
-      document.getElementById("btn-open-gift").addEventListener("click", () => {
-        playRomanticBGM(receiverData.musicPreset, receiverData.musicCustom, receiverData.youtubeId);
+      // Nút điều khiển âm thanh nổi góc trên bên phải
+      const btnMusic = document.getElementById("recv-music-btn");
+      if (btnMusic) {
+        btnMusic.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const bgAudio = document.getElementById("bg-audio");
+          if (!bgAudio) return;
+          if (bgAudio.paused) {
+            if (!bgAudio.src) {
+              bgAudio.src = resolveAudioSource(receiverData?.musicPreset, receiverData?.musicCustom);
+            }
+            bgAudio.play().then(() => updateMusicButtonState(true)).catch(() => {});
+          } else {
+            bgAudio.pause();
+            updateMusicButtonState(false);
+          }
+        });
+      }
+
+      // Xử lý chạm mở quà & bật nhạc
+      const openGiftAction = () => {
+        playRomanticBGM(receiverData?.musicPreset, receiverData?.musicCustom, receiverData?.youtubeId);
         document.getElementById("recv-screen-1").classList.add("hidden");
         document.getElementById("recv-screen-2").classList.remove("hidden");
         renderCurrentQuiz();
-      });
+      };
+
+      const btnGift = document.getElementById("btn-open-gift");
+      if (btnGift) {
+        btnGift.addEventListener("click", openGiftAction);
+        btnGift.addEventListener("touchend", (e) => {
+          e.preventDefault();
+          openGiftAction();
+        });
+      }
+
+      // Tự động mở khóa âm thanh trên lần chạm đầu tiên của người nhận
+      const autoUnlock = () => {
+        const bgAudio = document.getElementById("bg-audio");
+        if (bgAudio && bgAudio.paused && receiverData) {
+          if (!bgAudio.src) {
+            bgAudio.src = resolveAudioSource(receiverData.musicPreset, receiverData.musicCustom);
+          }
+          bgAudio.play().then(() => updateMusicButtonState(true)).catch(() => {});
+        }
+      };
+      document.addEventListener("touchstart", autoUnlock, { once: true });
+      document.addEventListener("click", autoUnlock, { once: true });
 
       document.getElementById("btn-quiz-submit").addEventListener("click", handleQuizSubmit);
       document.getElementById("input-quiz-answer").addEventListener("keydown", (e) => {
