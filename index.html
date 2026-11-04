@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bạn có một lời nhắn bảo mật</title>
+  <meta name="description" content="Nhấn vào liên kết để mở nội dung bảo mật được mã hóa đầu cuối.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Bạn có một lời nhắn bảo mật">
+  <meta property="og:description" content="Nhấn vào liên kết để mở nội dung bảo mật được mã hóa đầu cuối.">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1579208575657-c595a05383b7?w=800&auto=format&fit=crop&q=80">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Bạn có một lời nhắn bảo mật">
+  <meta name="twitter:description" content="Nhấn vào liên kết để mở nội dung bảo mật được mã hóa đầu cuối.">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- lz-string for URL hash compression/decompression -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
+  <!-- canvas-confetti for celebration fireworks -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <style>
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+    .animate-shake {
+      animation: shake 0.4s ease-in-out;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-center items-center p-4 selection:bg-pink-500 selection:text-white">
+
+  <!-- Khung Người tạo (Creator View) -->
+  <div id="creator-view" class="w-full max-w-md bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-2xl hidden">
+    <div class="text-center mb-5">
+      <h1 class="text-4xl font-extrabold tracking-tight text-pink-400">Valentine Letter</h1>
+      <p class="text-xs text-slate-400 mt-1">Tạo thư mật mã & thẻ cào tỏ tình</p>
+      <div id="offline-header-badge" class="hidden mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-[11px] text-amber-300 font-medium cursor-pointer hover:bg-amber-500/20 transition">
+        <span>⚠️</span>
+        <span>Chạy trên máy cục bộ — Người ấy chưa xem được. Bấm xem cách host online ➔</span>
+      </div>
+      <div>
+        <button type="button" id="btn-open-guide" class="text-xs text-pink-400 hover:text-pink-300 underline mt-2 inline-flex items-center gap-1 cursor-pointer">
+          📖 Hướng dẫn chi tiết cho người mới
+        </button>
+      </div>
+    </div>
+
+    <!-- Thanh tiến trình 4 bước -->
+    <div class="flex items-center justify-between mb-6 px-2">
+      <div class="flex flex-col items-center">
+        <span id="step-dot-1" class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-pink-500 text-white">1</span>
+        <span class="text-[10px] text-slate-300 mt-1">Thông tin</span>
+      </div>
+      <div class="flex-1 h-0.5 bg-slate-700 mx-2" id="line-1"></div>
+      <div class="flex-col items-center flex">
+        <span id="step-dot-2" class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-slate-700 text-slate-400">2</span>
+        <span class="text-[10px] text-slate-400 mt-1">Ảnh cào</span>
+      </div>
+      <div class="flex-1 h-0.5 bg-slate-700 mx-2" id="line-2"></div>
+      <div class="flex-col items-center flex">
+        <span id="step-dot-3" class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-slate-700 text-slate-400">3</span>
+        <span class="text-[10px] text-slate-400 mt-1">Tâm thư</span>
+      </div>
+      <div class="flex-1 h-0.5 bg-slate-700 mx-2" id="line-3"></div>
+      <div class="flex-col items-center flex">
+        <span id="step-dot-4" class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-slate-700 text-slate-400">4</span>
+        <span class="text-[10px] text-slate-400 mt-1">Xuất bản</span>
+      </div>
+    </div>
+
+    <!-- Bước 1: Thông tin, Nhạc & Câu hỏi -->
+    <div id="creator-step-1" class="space-y-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Gửi đến ai? *</label>
+        <input type="text" id="input-toName" placeholder="Ví dụ: Em Bé, Crush, Thu Hà..."
+          class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-pink-500 transition">
+      </div>
+
+      <!-- Chọn nhạc nền & Nghe thử -->
+      <div class="space-y-1.5">
+        <label class="block text-xs font-semibold text-slate-300">Nhạc nền lãng mạn</label>
+        <div class="flex gap-2">
+          <select id="select-musicPreset" class="flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-pink-500 transition">
+            <option value="until_i_found_you">Until I Found You - Stephen Sanchez ❤️</option>
+            <option value="perfect">Perfect - Ed Sheeran 💖</option>
+            <option value="beautiful_in_white">Beautiful In White - Shane Filan 💍</option>
+            <option value="canon_in_d">Canon in D - Pachelbel (Acoustic Piano) 🎹</option>
+            <option value="youtube">Dán link nhạc từ YouTube 🎥</option>
+            <option value="custom">Dán link file MP3 online 🔗</option>
+            <option value="upload">Tải file MP3 từ máy tính/điện thoại 📁</option>
+          </select>
+          <button type="button" id="btn-preview-music"
+            class="px-3 py-2 bg-slate-900 hover:bg-slate-700 active:scale-95 border border-slate-700 rounded-lg text-xs text-pink-400 font-medium transition flex items-center gap-1 shrink-0 cursor-pointer">
+            <span id="preview-music-icon">▶️</span>
+            <span id="preview-music-text">Nghe thử</span>
+          </button>
+        </div>
+
+        <!-- Panel YouTube -->
+        <div id="panel-music-youtube" class="space-y-1.5 hidden mt-1">
+          <input type="text" id="input-youtubeUrl" placeholder="Dán link video YouTube (VD: https://www.youtube.com/watch?v=... hoặc https://youtu.be/...)"
+            class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-pink-500 transition">
+          <p id="yt-detected-tag" class="text-[10px] text-pink-400 font-mono"></p>
+          <p class="text-[10px] text-amber-300/90 leading-relaxed border-t border-slate-800 pt-1">
+            ⚠️ <em>Lưu ý lỗi 150/153:</em> Các MV ca sĩ có bản quyền VEVO cấm nhúng ngoài YouTube sẽ không phát được. Bạn có thể chọn bản cover/lofi hoặc dùng 4 bài hát Preset có sẵn để phát mượt mà 100%!
+          </p>
+        </div>
+
+        <!-- Panel MP3 link -->
+        <div id="panel-music-custom" class="hidden mt-1">
+          <input type="url" id="input-musicCustom" placeholder="https://example.com/audio.mp3"
+            class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-pink-500 transition">
+        </div>
+
+        <!-- Panel File MP3 từ máy -->
+        <div id="panel-music-upload" class="space-y-1 hidden mt-1">
+          <input type="file" id="input-musicFile" accept="audio/*"
+            class="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-pink-400 hover:file:bg-slate-700 cursor-pointer">
+          <p class="text-[10px] text-amber-400/90 leading-tight">Lưu ý: File tải lên chỉ nghe thử trên máy này. Để người ấy nghe được trên điện thoại khi nhận thư, hãy ưu tiên dùng link YouTube hoặc link MP3 online nhé!</p>
+        </div>
+      </div>
+
+      <!-- Danh sách câu hỏi vượt trạm gác -->
+      <div class="pt-2 border-t border-slate-700/60">
+        <div class="flex items-center justify-between mb-2">
+          <div>
+            <label class="text-xs font-semibold text-slate-300">Câu hỏi trạm gác *</label>
+            <p class="text-[10px] text-slate-400">Người ấy phải trả lời đúng mới được mở thư</p>
+          </div>
+          <button type="button" id="btn-add-question" class="text-xs font-bold text-pink-400 hover:text-pink-300 transition">
+            + Thêm câu hỏi
+          </button>
+        </div>
+        <div id="questions-list" class="space-y-3">
+          <!-- Dynamic question rows rendered by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Bước 2: Danh sách ảnh cào & Ghi chú -->
+    <div id="creator-step-2" class="space-y-4 hidden">
+      <div class="flex items-center justify-between">
+        <div>
+          <label class="text-xs font-semibold text-slate-300">Danh sách ảnh cào & ghi chú *</label>
+          <p class="text-[10px] text-slate-400">Cào sạch 90% để mở ảnh & xem ghi chú</p>
+        </div>
+        <button type="button" id="btn-add-card" class="text-xs font-bold text-pink-400 hover:text-pink-300 transition">
+          + Thêm ảnh
+        </button>
+      </div>
+
+      <div id="cards-list" class="space-y-4">
+        <!-- Dynamic card rows rendered by JS -->
+      </div>
+    </div>
+
+    <!-- Bước 3: Tâm thư & Tùy biến tỏ tình -->
+    <div id="creator-step-3" class="space-y-4 hidden">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Lời nhắn tâm tình (Tâm thư) *</label>
+        <textarea id="input-message" rows="4" placeholder="Cảm ơn em đã xuất hiện trong cuộc đời anh. Làm người yêu anh nhé? ❤️"
+          class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-pink-500 transition"></textarea>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Câu hỏi tỏ tình (Mặc định nếu để trống)</label>
+        <input type="text" id="input-confessionQuestion" placeholder="Cậu đồng ý làm người yêu của mình nhé? ❤️"
+          class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-pink-500 transition">
+      </div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Nút Đồng ý (Mặc định)</label>
+          <input type="text" id="input-acceptLabel" placeholder="Đồng ý ❤️"
+            class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-pink-500 transition">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Nút Từ chối (Mặc định)</label>
+          <input type="text" id="input-rejectLabel" placeholder="Từ chối 😢"
+            class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-pink-500 transition">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Đường dẫn liên hệ khi bấm 'Đồng ý' *</label>
+        <input type="url" id="input-contactLink" placeholder="Ví dụ: https://m.me/username hoặc https://zalo.me/sdt"
+          class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-pink-500 transition">
+      </div>
+    </div>
+
+    <!-- Bước 4: Hoàn thành & Sao chép link -->
+    <div id="creator-step-4" class="space-y-4 hidden">
+      <div class="text-center py-2">
+        <div class="inline-block p-3 bg-pink-500/10 rounded-full text-pink-400 text-2xl mb-2">💌</div>
+        <h2 class="text-lg font-bold text-slate-100">Bức thư bí mật đã sẵn sàng!</h2>
+        <p class="text-xs text-slate-400 mt-1">Dữ liệu đã được nén an toàn vào mã URL.</p>
+      </div>
+
+      <!-- Cảnh báo nếu đang chạy offline file:// hoặc localhost -->
+      <div id="offline-alert-box" class="py-2.5 border-y border-amber-500/30 space-y-2 text-xs hidden">
+        <div class="flex items-start gap-2">
+          <span class="text-base shrink-0">⚠️</span>
+          <div>
+            <p class="font-bold text-amber-300">Đang chạy trên máy tính cá nhân (Offline)</p>
+            <p class="text-[11px] text-slate-300 mt-0.5 leading-relaxed">
+              Đường dẫn <code class="text-pink-300 font-mono">file://</code> chỉ mở được trên máy này. Người ấy mở trên điện thoại sẽ bị lỗi <em>"không tìm thấy file"</em> vì điện thoại không truy cập được ổ đĩa máy tính của bạn.
+            </p>
+          </div>
+        </div>
+        <div class="pt-1 flex items-center justify-between">
+          <button type="button" id="btn-open-deploy-guide" class="text-pink-400 hover:text-pink-300 font-bold underline text-[11px] flex items-center gap-1 cursor-pointer">
+            🚀 Cách đưa lên mạng miễn phí để người ấy xem được (30 giây) ➔
+          </button>
+        </div>
+      </div>
+
+      <!-- Tùy chọn dán domain hosting nếu đã tải lên web -->
+      <div class="space-y-1">
+        <label class="block text-xs font-semibold text-slate-300">
+          Nhập link website của bạn (nếu đã tải lên hosting):
+        </label>
+        <input type="url" id="input-custom-domain" placeholder="Ví dụ: https://my-letter.netlify.app hoặc https://username.github.io/valentine/"
+          class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs font-mono text-slate-100 placeholder-slate-500 focus:outline-none focus:border-pink-500 transition">
+        <p class="text-[10px] text-slate-400">Nếu đã đưa lên Netlify / GitHub Pages / Vercel, dán link vào đây để liên kết tự động chuyển thành link công khai.</p>
+      </div>
+
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <label class="text-xs font-semibold text-slate-300">Đường dẫn gửi cho người ấy:</label>
+          <span id="url-length-tag" class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-900 text-emerald-400"></span>
+        </div>
+        <textarea id="output-link" readonly rows="3"
+          class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs font-mono text-pink-300 select-all focus:outline-none"></textarea>
+      </div>
+
+      <button type="button" id="btn-copy"
+        class="w-full py-2.5 bg-pink-500 hover:bg-pink-600 active:scale-[0.98] text-white rounded-lg font-semibold text-sm transition flex items-center justify-center gap-2 cursor-pointer">
+        <span id="copy-icon">📋</span>
+        <span id="copy-text">Sao chép liên kết</span>
+      </button>
+
+      <button type="button" id="btn-test"
+        class="w-full py-2 text-xs text-slate-400 hover:text-slate-200 transition underline text-center block cursor-pointer">
+        Mở thử màn hình người nhận ↗
+      </button>
+    </div>
+
+    <!-- Điều hướng chân form -->
+    <div class="flex items-center justify-between gap-3 pt-6 border-t border-slate-700/60 mt-6" id="wizard-nav">
+      <button type="button" id="btn-prev" class="px-4 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 disabled:opacity-30 disabled:pointer-events-none transition">
+        Quay lại
+      </button>
+      <button type="button" id="btn-next" class="px-5 py-2.5 rounded-lg text-xs font-bold bg-pink-500 hover:bg-pink-600 text-white transition active:scale-[0.98]">
+        Tiếp tục
+      </button>
+    </div>
+  </div>
+
+  <!-- Khung Người nhận (Receiver View) -->
+  <div id="receiver-view" class="w-full max-w-md bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-2xl hidden relative overflow-hidden">
+    <!-- Màn hình 1: Hộp quà mở khóa nhạc -->
+    <div id="recv-screen-1" class="text-center py-6 space-y-6">
+      <div>
+        <p class="text-xs uppercase tracking-widest text-pink-400 font-semibold mb-1">Thư mật Valentine</p>
+        <h1 class="text-4xl font-extrabold tracking-tight text-slate-100">Gửi <span id="recv-toName-1" class="text-pink-400">bạn</span></h1>
+      </div>
+
+      <div class="py-4">
+        <button type="button" id="btn-open-gift"
+          class="group relative inline-flex flex-col items-center justify-center p-6 bg-pink-500/10 hover:bg-pink-500/20 active:scale-95 border border-pink-500/30 rounded-3xl transition duration-300">
+          <span class="text-6xl animate-bounce mb-2 select-none">🎁</span>
+          <span class="text-sm font-bold text-pink-300 group-hover:text-pink-200">Chạm để mở quà & bật nhạc</span>
+          <span class="text-[11px] text-slate-400 mt-1">🎵 Giai điệu lãng mạn dành riêng cho bạn</span>
+        </button>
+      </div>
+
+      <p class="text-xs text-slate-400">Một bất ngờ nho nhỏ đang chờ bạn giải mã...</p>
+    </div>
+
+    <!-- Màn hình 2: Trạm gác câu hỏi (Quiz) -->
+    <div id="recv-screen-2" class="space-y-4 hidden">
+      <div class="text-center">
+        <span id="recv-q-step" class="text-[11px] font-bold uppercase tracking-wider text-pink-400"></span>
+        <h2 id="recv-q-title" class="text-xl font-bold tracking-tight text-slate-100 mt-0.5"></h2>
+      </div>
+
+      <div id="quiz-input-wrapper" class="space-y-3 pt-2">
+        <input type="text" id="input-quiz-answer" placeholder="Nhập câu trả lời..."
+          class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-center text-base font-semibold text-slate-100 placeholder-slate-500 focus:outline-none focus:border-pink-500 transition">
+
+        <button type="button" id="btn-quiz-submit"
+          class="w-full py-2.5 bg-pink-500 hover:bg-pink-600 active:scale-[0.98] text-white rounded-xl font-bold text-xs transition">
+          Xác nhận đáp án ➔
+        </button>
+
+        <p id="recv-hint-text" class="text-xs text-pink-400/90 font-medium min-h-[1.25rem] text-center"></p>
+      </div>
+    </div>
+
+    <!-- Màn hình 2.5: Thẻ cào bí mật (Chỉ cào ảnh đầu tiên, đơn giản & tinh gọn) -->
+    <div id="recv-screen-scratch" class="space-y-4 text-center hidden">
+      <div>
+        <h2 id="scratch-heading" class="text-xl font-bold tracking-tight text-pink-400">Cào thẻ để mở ảnh bí mật ❤️</h2>
+      </div>
+
+      <!-- Khung ảnh to: w-72 h-80 (288x320px) -->
+      <div class="relative w-72 h-80 mx-auto rounded-2xl overflow-hidden border-2 border-pink-500/40 shadow-2xl select-none">
+        <div id="scratch-under-box" class="w-full h-full bg-slate-950 flex items-center justify-center"></div>
+        <canvas id="scratch-canvas" width="288" height="320" class="absolute inset-0 w-full h-full cursor-pointer touch-none transition-opacity duration-700"></canvas>
+      </div>
+
+      <div class="space-y-2">
+        <!-- Khung ghi chú kỷ niệm xuất hiện sau khi cào xong -->
+        <div id="scratch-note-container" class="min-h-[2.5rem] flex flex-col items-center justify-center hidden">
+          <p id="scratch-note-text" class="text-xs text-pink-300 font-medium italic mb-2 border-t border-slate-700/60 pt-2 w-full"></p>
+          <button type="button" id="btn-scratch-next"
+            class="px-5 py-2 bg-pink-500 hover:bg-pink-600 active:scale-95 text-white rounded-xl font-bold text-xs shadow-md shadow-pink-500/20 transition cursor-pointer">
+            Xem tiếp ➔
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Màn hình 3: Climax (Tâm thư, Lời tỏ tình, Nút đồng ý phóng to) -->
+    <div id="recv-screen-3" class="hidden text-center py-4 space-y-4">
+      <div id="climax-avatar-container" class="w-24 h-24 mx-auto rounded-full overflow-hidden border-2 border-pink-400 shadow-lg shadow-pink-500/20">
+        <div id="climax-img-box" class="w-full h-full bg-slate-900 flex items-center justify-center"></div>
+      </div>
+
+      <div>
+        <h2 class="text-2xl font-bold tracking-tight text-slate-100">Gửi <span id="climax-toName" class="text-pink-400"></span></h2>
+        <p class="text-xs text-slate-400 mt-0.5">Một lời nhắn từ tận đáy lòng</p>
+      </div>
+
+      <p id="climax-message" class="text-slate-200 text-sm leading-relaxed whitespace-pre-line text-center italic border-y border-slate-700/60 py-4 font-serif"></p>
+
+      <div class="space-y-4 pt-2">
+        <p id="climax-question-text" class="text-base font-bold text-pink-400">Cậu đồng ý làm người yêu của mình nhé? ❤️</p>
+
+        <div class="flex items-center justify-center gap-4 relative min-h-[70px]" id="climax-actions">
+          <button type="button" id="btn-accept"
+            class="px-6 py-3 bg-pink-500 hover:bg-pink-600 active:scale-95 text-white font-bold text-sm rounded-xl shadow-lg shadow-pink-500/30 transition-all origin-center">
+            Đồng ý ❤️
+          </button>
+          <button type="button" id="btn-reject"
+            class="px-5 py-2.5 bg-slate-700 hover:bg-slate-600 text-slate-300 font-medium text-xs rounded-xl transition duration-150 select-none cursor-pointer">
+            Từ chối 😢
+          </button>
+        </div>
+
+        <p id="climax-status" class="text-xs text-pink-300 font-medium min-h-[1.5rem]"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Khung Báo Lỗi Thân Thiện (Error View khi link bị hỏng/cắt cụt) -->
+  <div id="error-view" class="w-full max-w-md bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-2xl hidden text-center space-y-5">
+    <div class="w-16 h-16 mx-auto rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-3xl">
+      💌
+    </div>
+    <div>
+      <h2 class="text-2xl font-bold tracking-tight text-slate-100">Không thể giải mã phong thư</h2>
+      <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+        Đường dẫn có thể đã bị sao chép thiếu hoặc bị cắt cụt ký tự khi gửi qua tin nhắn Zalo/Messenger. Hãy kiểm tra lại liên kết đầy đủ nhé!
+      </p>
+    </div>
+    <div class="pt-2">
+      <button type="button" id="btn-error-home"
+        class="w-full py-2.5 bg-pink-500 hover:bg-pink-600 active:scale-95 text-white rounded-xl font-semibold text-xs transition">
+        Tạo bức thư mới
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal Hướng dẫn chi tiết cho người mới -->
+  <div id="guide-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-md bg-slate-900 border border-slate-700 p-6 rounded-2xl shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h2 class="text-lg font-bold text-pink-400">📖 Hướng dẫn tạo thư Valentine</h2>
+        <button type="button" id="btn-close-guide" class="text-slate-400 hover:text-slate-200 text-lg cursor-pointer">✕</button>
+      </div>
+      <div class="space-y-3 text-xs text-slate-300 leading-relaxed divide-y divide-slate-800">
+        <div class="pt-2 first:pt-0">
+          <p class="font-bold text-pink-300 mb-0.5">1. Câu hỏi & Đáp án trạm gác:</p>
+          <p class="text-slate-400">Trường "Đáp án" là mã mà người nhận <strong>bắt buộc phải gõ đúng</strong> mới mở được thư (ví dụ ngày sinh nhật, ngày quen nhau như <code>1402</code>, hoặc biệt danh thân mật).</p>
+        </div>
+        <div class="pt-2">
+          <p class="font-bold text-pink-300 mb-0.5">2. Nhạc nền lãng mạn:</p>
+          <p class="text-slate-400">Có 3 bản nhạc synthesizer nhẹ nhàng không sợ chết link. Bấm nút <strong>"▶️ Nghe thử"</strong> để nghe trước khi tạo.</p>
+        </div>
+        <div class="pt-2">
+          <p class="font-bold text-pink-300 mb-0.5">3. Ảnh cào & Album kỷ niệm:</p>
+          <p class="text-slate-400">Tất cả các ảnh đều là Thẻ cào bí mật. Người nhận cào mở từng ảnh để khám phá kỷ niệm và đọc từng lời nhắn gửi của bạn.</p>
+        </div>
+        <div class="pt-2">
+          <p class="font-bold text-pink-300 mb-0.5">4. Màn hình tỏ tình vui nhộn:</p>
+          <p class="text-slate-400">Khi người nhận cố chạm vào nút "Từ chối", nút đó sẽ né đi và nút "Đồng ý" sẽ <strong>to dần lên đến khi choán hết màn hình</strong>!</p>
+        </div>
+      </div>
+      <button type="button" id="btn-guide-ok" class="w-full py-2.5 bg-pink-500 hover:bg-pink-600 active:scale-95 text-white font-bold text-xs rounded-xl transition cursor-pointer">
+        Đã hiểu, bắt đầu tạo thư!
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal Hướng dẫn đưa lên mạng miễn phí (30 giây) -->
+  <div id="deploy-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-md bg-slate-900 border border-slate-700 p-6 rounded-2xl shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h2 class="text-lg font-bold text-pink-400">🚀 Đưa lên Web Miễn Phí (Để người ấy xem được)</h2>
+        <button type="button" id="btn-close-deploy" class="text-slate-400 hover:text-slate-200 text-lg cursor-pointer">✕</button>
+      </div>
+
+      <div class="space-y-3 text-xs text-slate-300 leading-relaxed divide-y divide-slate-800">
+        <div class="pt-2 first:pt-0">
+          <p class="font-bold text-emerald-400 mb-1">Cách 1: Netlify Drop (Nhanh nhất - 30 giây, không cần cài gì)</p>
+          <ol class="list-decimal list-inside space-y-1 text-slate-400">
+            <li>Mở trình duyệt vào trang: <a href="https://app.netlify.com/drop" target="_blank" rel="noreferrer" class="text-pink-400 underline font-mono">app.netlify.com/drop</a></li>
+            <li>Kéo thả cả thư mục chứa file <code class="text-pink-300">index.html</code> này vào ô kéo thả của Netlify.</li>
+            <li>Netlify sẽ cấp ngay cho bạn một link web công khai dạng <code class="text-pink-300 font-mono">https://ten-ban.netlify.app</code>.</li>
+            <li>Copy link đó dán vào ô <em>"Link trang web của bạn"</em> ở Bước 4, bạn sẽ có link hoàn chỉnh gửi qua Zalo/Messenger!</li>
+          </ol>
+        </div>
+
+        <div class="pt-2">
+          <p class="font-bold text-pink-400 mb-1">Cách 2: GitHub Pages (Vĩnh viễn, chuyên nghiệp)</p>
+          <ol class="list-decimal list-inside space-y-1 text-slate-400">
+            <li>Tạo một repository mới trên GitHub (ví dụ tên là <code class="text-pink-300">valentine</code>).</li>
+            <li>Tải file <code class="text-pink-300">index.html</code> này lên repository đó.</li>
+            <li>Vào mục <strong>Settings</strong> ➔ <strong>Pages</strong> ➔ ở mục Branch chọn <strong>main</strong> rồi bấm <strong>Save</strong>.</li>
+            <li>Link công khai của bạn sẽ là: <code class="text-pink-300 font-mono">https://&lt;ten-github&gt;.github.io/valentine/</code>.</li>
+          </ol>
+        </div>
+      </div>
+
+      <button type="button" id="btn-deploy-ok" class="w-full py-2.5 bg-pink-500 hover:bg-pink-600 active:scale-95 text-white font-bold text-xs rounded-xl transition cursor-pointer">
+        Đã hiểu, quay lại tạo thư!
+      </button>
+    </div>
+  </div>
+
+  <!-- Trình phát ngầm YouTube Audio 100% ẩn, không khung video mini -->
+  <iframe id="yt-audio-player" class="fixed bottom-0 right-0 w-[1px] h-[1px] opacity-[0.01] pointer-events-none -z-10" allow="autoplay; encrypted-media" src=""></iframe>
+
+  <script>
+    /**
+     * Cấu trúc JSON chuẩn (Schema nâng cấp):
+     * {
+     *   toName: string,
+     *   questions: [{ q: string, a: string, hint: string }],
+     *   musicPreset: "canon" | "fur_elise" | "lofi" | "custom",
+     *   musicCustom: string,
+     *   cards: [{ imgUrl: string, note: string }],
+     *   message: string,
+     *   confessionQuestion: string,
+     *   acceptLabel: string,
+     *   rejectLabel: string,
+     *   contactLink: string
+     * }
+     */
+    let receiverData = null;
+
+    // --- Phân hệ Người tạo (Creator Studio Controller) ---
+    let currentStep = 1;
+    let creatorQuestions = [
+      { q: "Mật khẩu mở thư", a: "1402", hint: "Ngày kỷ niệm của chúng mình", collapsed: false }
+    ];
+    let creatorCards = [
+      { imgUrl: "", note: "" }
+    ];
+    let lastCompressedPayload = "";
+
+    function isLocalEnvironment() {
+      return (
+        window.location.protocol === "file:" ||
+        window.location.origin === "null" ||
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1"
+      );
+    }
+
+    function updateOutputLink() {
+      if (!lastCompressedPayload) return;
+      const customDomainInput = document.getElementById("input-custom-domain");
+      const customDomain = customDomainInput ? customDomainInput.value.trim() : "";
+
+      let base = "";
+      if (customDomain) {
+        // ponytail: normalize trailing slash before hash; ceiling: simple root or subpath hosting
+        let clean = customDomain.replace(/#.*$/, "");
+        if (!clean.endsWith("/") && !clean.endsWith(".html")) {
+          clean += "/";
+        }
+        base = clean;
+      } else if (!isLocalEnvironment()) {
+        base = (window.location.origin + window.location.pathname).replace(/\/+$/, "");
+      } else {
+        base = window.location.href.split("#")[0];
+      }
+
+      const fullUrl = base + "#" + lastCompressedPayload;
+      const outputEl = document.getElementById("output-link");
+      if (outputEl) outputEl.value = fullUrl;
+
+      const offlineBox = document.getElementById("offline-alert-box");
+      if (offlineBox) {
+        offlineBox.classList.toggle("hidden", !isLocalEnvironment() || Boolean(customDomain));
+      }
+
+      const tag = document.getElementById("url-length-tag");
+      if (tag) {
+        const len = fullUrl.length;
+        if (len < 2000) {
+          tag.className = "text-[10px] font-mono px-2 py-0.5 rounded bg-slate-900 text-emerald-400";
+          tag.textContent = `${len} ký tự (An toàn)`;
+        } else {
+          tag.className = "text-[10px] font-mono px-2 py-0.5 rounded bg-slate-900 text-amber-400";
+          tag.textContent = `${len} ký tự (Dài - nên dùng URL ảnh)`;
+        }
+      }
+    }
+
+    function extractYouTubeId(url) {
+      if (!url) return "";
+      const m = url.match(/(?:youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|shorts\/|&v=|^)([a-zA-Z0-9_-]{11})/);
+      return m ? m[1] : "";
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function syncQuestionsFromDOM() {
+      const listEl = document.getElementById("questions-list");
+      if (!listEl) return;
+      listEl.querySelectorAll(".q-val").forEach((inp) => {
+        const idx = parseInt(inp.getAttribute("data-idx"), 10);
+        if (creatorQuestions[idx] !== undefined) creatorQuestions[idx].q = inp.value;
+      });
+      listEl.querySelectorAll(".a-val").forEach((inp) => {
+        const idx = parseInt(inp.getAttribute("data-idx"), 10);
+        if (creatorQuestions[idx] !== undefined) creatorQuestions[idx].a = inp.value;
+      });
+      listEl.querySelectorAll(".hint-val").forEach((inp) => {
+        const idx = parseInt(inp.getAttribute("data-idx"), 10);
+        if (creatorQuestions[idx] !== undefined) creatorQuestions[idx].hint = inp.value;
+      });
+    }
+
+    function renderQuestionsList() {
+      const listEl = document.getElementById("questions-list");
+      if (!listEl) return;
+      listEl.innerHTML = "";
+
+      creatorQuestions.forEach((item, idx) => {
+        const hasContent = Boolean(item.q.trim() && item.a.trim());
+        const isCollapsed = Boolean(item.collapsed && hasContent);
+
+        const row = document.createElement("div");
+        row.className = "py-2.5 border-b border-slate-700/60 last:border-b-0 space-y-2";
+
+        if (isCollapsed) {
+          // Thu nhỏ câu hỏi khi đã có nội dung
+          row.innerHTML = `
+            <div class="flex items-center justify-between text-xs py-1.5 px-1 cursor-pointer hover:text-pink-300 transition btn-toggle-q" data-idx="${idx}">
+              <div class="flex items-center gap-2 truncate pr-2">
+                <span class="w-5 h-5 rounded-full bg-pink-500/20 text-pink-400 flex items-center justify-center text-[10px] font-bold shrink-0">${idx + 1}</span>
+                <span class="text-slate-200 font-medium truncate">${escapeHtml(item.q)}</span>
+                <span class="text-[10px] text-pink-400 font-mono font-bold shrink-0 bg-slate-900 px-1.5 py-0.5 rounded">🔑 ${escapeHtml(item.a)}</span>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <span class="text-[10px] text-pink-400 font-semibold">Sửa ✏️</span>
+                ${creatorQuestions.length > 1 ? `<button type="button" class="text-[10px] text-rose-400 hover:text-rose-300 btn-del-q cursor-pointer" data-idx="${idx}">✕</button>` : ""}
+              </div>
+            </div>
+          `;
+        } else {
+          // Form nhập đầy đủ
+          row.innerHTML = `
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold text-pink-400">Câu hỏi ${idx + 1}</span>
+              <div class="flex items-center gap-2">
+                ${hasContent ? `<button type="button" class="text-[10px] text-slate-400 hover:text-slate-200 btn-toggle-q cursor-pointer" data-idx="${idx}">Thu nhỏ 🔼</button>` : ""}
+                ${creatorQuestions.length > 1 ? `<button type="button" class="text-[10px] text-rose-400 hover:text-rose-300 btn-del-q cursor-pointer" data-idx="${idx}">Xóa</button>` : ""}
+              </div>
+            </div>
+            <div>
+              <label class="block text-[11px] font-medium text-slate-300 mb-1">Nội dung câu hỏi *</label>
+              <input type="text" data-idx="${idx}" class="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded text-xs text-slate-100 placeholder-slate-500 q-val" placeholder="Ví dụ: Ngày đầu gặp nhau, Món em thích..." value="${escapeHtml(item.q)}">
+            </div>
+            <div class="space-y-1">
+              <label class="block text-[11px] font-semibold text-pink-300">Đáp án người nhận cần nhập để mở khóa *</label>
+              <p class="text-[10px] text-slate-400">Người ấy phải gõ đúng chữ/số này (VD: 1402, ngày sinh, biệt danh...):</p>
+              <input type="text" data-idx="${idx}" class="w-full px-2.5 py-1.5 bg-slate-950 border border-pink-500/50 rounded text-xs text-slate-100 placeholder-slate-500 a-val font-mono" placeholder="Nhập đáp án chính xác (VD: 1402)" value="${escapeHtml(item.a)}">
+            </div>
+            <div>
+              <label class="block text-[11px] font-medium text-slate-400 mb-1">Gợi ý khi người ấy trả lời sai (tuỳ chọn)</label>
+              <input type="text" data-idx="${idx}" class="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded text-xs text-slate-100 placeholder-slate-500 hint-val" placeholder="Ví dụ: Ngày kỷ niệm năm ngoái" value="${escapeHtml(item.hint)}">
+            </div>
+          `;
+        }
+
+        listEl.appendChild(row);
+      });
+
+      // Bind input events targeting by exact data-idx attribute
+      listEl.querySelectorAll(".q-val").forEach((inp) => {
+        inp.addEventListener("input", (e) => {
+          const idx = parseInt(inp.getAttribute("data-idx"), 10);
+          if (creatorQuestions[idx] !== undefined) creatorQuestions[idx].q = e.target.value;
+        });
+      });
+      listEl.querySelectorAll(".a-val").forEach((inp) => {
+        inp.addEventListener("input", (e) => {
+          const idx = parseInt(inp.getAttribute("data-idx"), 10);
+          if (creatorQuestions[idx] !== undefined) creatorQuestions[idx].a = e.target.value;
+        });
+      });
+      listEl.querySelectorAll(".hint-val").forEach((inp) => {
+        inp.addEventListener("input", (e) => {
+          const idx = parseInt(inp.getAttribute("data-idx"), 10);
+          if (creatorQuestions[idx] !== undefined) creatorQuestions[idx].hint = e.target.value;
+        });
+      });
+      listEl.querySelectorAll(".btn-toggle-q").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          syncQuestionsFromDOM();
+          const idx = parseInt(btn.getAttribute("data-idx"), 10);
+          creatorQuestions[idx].collapsed = !creatorQuestions[idx].collapsed;
+          renderQuestionsList();
+        });
+      });
+      listEl.querySelectorAll(".btn-del-q").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          syncQuestionsFromDOM();
+          const idx = parseInt(btn.getAttribute("data-idx"), 10);
+          creatorQuestions.splice(idx, 1);
+          renderQuestionsList();
+        });
+      });
+    }
+
+    function renderCardsList() {
+      const listEl = document.getElementById("cards-list");
+      if (!listEl) return;
+      listEl.innerHTML = "";
+
+      creatorCards.forEach((card, idx) => {
+        const row = document.createElement("div");
+        row.className = "py-3 border-b border-slate-700/60 last:border-b-0 space-y-2";
+        row.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold text-pink-400">Ảnh cào ${idx + 1}</span>
+            ${creatorCards.length > 1 ? `<button type="button" class="text-[10px] text-rose-400 hover:text-rose-300 btn-del-card" data-idx="${idx}">Xóa ảnh này</button>` : ""}
+          </div>
+          <div class="space-y-1.5">
+            <div class="flex gap-2">
+              <input type="url" class="flex-1 px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded text-xs text-slate-100 placeholder-slate-500 card-url-val" placeholder="Dán link ảnh (https://...)" value="${escapeHtml(card.imgUrl.startsWith("data:") ? "" : card.imgUrl)}">
+              <label class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-[11px] font-medium text-pink-300 cursor-pointer flex items-center shrink-0">
+                Tải ảnh
+                <input type="file" accept="image/*" class="hidden card-file-val" data-idx="${idx}">
+              </label>
+            </div>
+            ${card.imgUrl ? `
+              <div class="flex items-center gap-2 pt-1">
+                <img src="${card.imgUrl}" alt="Preview" class="w-12 h-12 object-cover rounded-md border border-pink-500/40">
+                <span class="text-[10px] text-emerald-400 font-mono">Đã sẵn sàng</span>
+              </div>
+            ` : ""}
+          </div>
+          <input type="text" class="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded text-xs text-slate-100 placeholder-slate-500 card-note-val" placeholder="Ghi chú xuất hiện sau khi cào xong (VD: Kỷ niệm Đà Lạt ❤️)" value="${escapeHtml(card.note || "")}">
+        `;
+        listEl.appendChild(row);
+      });
+
+      // Bind card events
+      listEl.querySelectorAll(".card-url-val").forEach((inp, i) => {
+        inp.addEventListener("input", (e) => {
+          creatorCards[i].imgUrl = e.target.value.trim();
+        });
+      });
+      listEl.querySelectorAll(".card-note-val").forEach((inp, i) => {
+        inp.addEventListener("input", (e) => {
+          creatorCards[i].note = e.target.value;
+        });
+      });
+      listEl.querySelectorAll(".card-file-val").forEach((fileInp) => {
+        fileInp.addEventListener("change", async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const idx = parseInt(fileInp.getAttribute("data-idx"), 10);
+          try {
+            const compressed = await compressImageFile(file);
+            creatorCards[idx].imgUrl = compressed;
+            renderCardsList();
+          } catch (err) {
+            alert("Lỗi khi nén ảnh!");
+          }
+        });
+      });
+      listEl.querySelectorAll(".btn-del-card").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const idx = parseInt(btn.getAttribute("data-idx"), 10);
+          creatorCards.splice(idx, 1);
+          renderCardsList();
+        });
+      });
+    }
+
+    function updateStepUI() {
+      for (let i = 1; i <= 4; i++) {
+        const stepEl = document.getElementById(`creator-step-${i}`);
+        const dotEl = document.getElementById(`step-dot-${i}`);
+        if (stepEl) {
+          stepEl.classList.toggle("hidden", i !== currentStep);
+        }
+        if (dotEl) {
+          if (i === currentStep) {
+            dotEl.className = "w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-pink-500 text-white ring-2 ring-pink-400/40";
+          } else if (i < currentStep) {
+            dotEl.className = "w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-pink-500/80 text-white";
+          } else {
+            dotEl.className = "w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-slate-700 text-slate-400";
+          }
+        }
+      }
+
+      for (let i = 1; i <= 3; i++) {
+        const lineEl = document.getElementById(`line-${i}`);
+        if (lineEl) {
+          lineEl.className = `flex-1 h-0.5 mx-2 transition ${i < currentStep ? "bg-pink-500" : "bg-slate-700"}`;
+        }
+      }
+
+      const btnPrev = document.getElementById("btn-prev");
+      const btnNext = document.getElementById("btn-next");
+      const navEl = document.getElementById("wizard-nav");
+
+      btnPrev.disabled = currentStep === 1;
+
+      if (currentStep === 4) {
+        navEl.classList.add("hidden");
+      } else {
+        navEl.classList.remove("hidden");
+        btnNext.textContent = currentStep === 3 ? "Tạo thư & Lấy link" : "Tiếp tục";
+      }
+    }
+
+    function compressImageFile(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = reject;
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onerror = reject;
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            const MAX_SIZE = 120;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+              if (width > MAX_SIZE) {
+                height = Math.round((height * MAX_SIZE) / width);
+                width = MAX_SIZE;
+              }
+            } else {
+              if (height > MAX_SIZE) {
+                width = Math.round((width * MAX_SIZE) / height);
+                height = MAX_SIZE;
+              }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, width, height);
+
+            let dataUrl = canvas.toDataURL("image/webp", 0.65);
+            if (!dataUrl.startsWith("data:image/webp")) {
+              dataUrl = canvas.toDataURL("image/jpeg", 0.6);
+            }
+            resolve(dataUrl);
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function initCreator() {
+      renderQuestionsList();
+      renderCardsList();
+
+      const selectMusic = document.getElementById("select-musicPreset");
+      const inputMusicCustom = document.getElementById("input-musicCustom");
+      const inputYoutubeUrl = document.getElementById("input-youtubeUrl");
+      const ytDetectedTag = document.getElementById("yt-detected-tag");
+      const inputMusicFile = document.getElementById("input-musicFile");
+      const panelYoutube = document.getElementById("panel-music-youtube");
+      const panelCustom = document.getElementById("panel-music-custom");
+      const panelUpload = document.getElementById("panel-music-upload");
+      const btnPreviewMusic = document.getElementById("btn-preview-music");
+      const previewIcon = document.getElementById("preview-music-icon");
+      const previewText = document.getElementById("preview-music-text");
+      let isMusicPreviewing = false;
+      let localAudioUrl = "";
+
+      function stopMusicPreview() {
+        stopRomanticBGM();
+        isMusicPreviewing = false;
+        if (previewIcon && previewText) {
+          previewIcon.textContent = "▶️";
+          previewText.textContent = "Nghe thử";
+          btnPreviewMusic.classList.remove("text-rose-400");
+          btnPreviewMusic.classList.add("text-pink-400");
+        }
+      }
+
+      btnPreviewMusic.addEventListener("click", () => {
+        if (isMusicPreviewing) {
+          stopMusicPreview();
+        } else {
+          const mode = selectMusic.value;
+          let targetUrl = "";
+          let ytId = "";
+          if (mode === "youtube") {
+            ytId = extractYouTubeId(inputYoutubeUrl.value.trim());
+            if (!ytId) {
+              alert("Vui lòng dán link video YouTube hợp lệ!");
+              return;
+            }
+          } else if (mode === "custom") {
+            targetUrl = inputMusicCustom.value.trim();
+            if (!targetUrl) {
+              alert("Vui lòng dán link file MP3!");
+              return;
+            }
+          } else if (mode === "upload") {
+            targetUrl = localAudioUrl;
+            if (!targetUrl) {
+              alert("Vui lòng chọn file MP3 từ máy!");
+              return;
+            }
+          }
+          playRomanticBGM(mode, targetUrl, ytId);
+          isMusicPreviewing = true;
+          previewIcon.textContent = "⏹️";
+          previewText.textContent = "Dừng nghe";
+          btnPreviewMusic.classList.add("text-rose-400");
+          btnPreviewMusic.classList.remove("text-pink-400");
+        }
+      });
+
+      selectMusic.addEventListener("change", () => {
+        if (isMusicPreviewing) stopMusicPreview();
+        const mode = selectMusic.value;
+        panelYoutube.classList.toggle("hidden", mode !== "youtube");
+        panelCustom.classList.toggle("hidden", mode !== "custom");
+        panelUpload.classList.toggle("hidden", mode !== "upload");
+      });
+
+      inputYoutubeUrl.addEventListener("input", () => {
+        const id = extractYouTubeId(inputYoutubeUrl.value.trim());
+        if (id) {
+          ytDetectedTag.textContent = `✓ Đã nhận diện ID: ${id}`;
+          ytDetectedTag.className = "text-[10px] text-emerald-400 font-mono";
+        } else {
+          ytDetectedTag.textContent = "Dán link bất kỳ bài hát nào từ YouTube để phát làm nhạc nền";
+          ytDetectedTag.className = "text-[10px] text-slate-400";
+        }
+      });
+
+      inputMusicFile.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          if (localAudioUrl) URL.revokeObjectURL(localAudioUrl);
+          localAudioUrl = URL.createObjectURL(file);
+        }
+      });
+
+      // Guide Modal wiring
+      const guideModal = document.getElementById("guide-modal");
+      document.getElementById("btn-open-guide").addEventListener("click", () => {
+        guideModal.classList.remove("hidden");
+      });
+      document.getElementById("btn-close-guide").addEventListener("click", () => {
+        guideModal.classList.add("hidden");
+      });
+      document.getElementById("btn-guide-ok").addEventListener("click", () => {
+        guideModal.classList.add("hidden");
+      });
+
+      document.getElementById("btn-add-question").addEventListener("click", () => {
+        syncQuestionsFromDOM();
+        creatorQuestions.push({ q: "", a: "", hint: "", collapsed: false });
+        renderQuestionsList();
+      });
+
+      document.getElementById("btn-add-card").addEventListener("click", () => {
+        creatorCards.push({ imgUrl: "", note: "" });
+        renderCardsList();
+      });
+
+      document.getElementById("btn-prev").addEventListener("click", () => {
+        syncQuestionsFromDOM();
+        if (currentStep > 1) {
+          currentStep--;
+          updateStepUI();
+        }
+      });
+
+      document.getElementById("btn-next").addEventListener("click", () => {
+        syncQuestionsFromDOM();
+        if (currentStep === 1) {
+          const toName = document.getElementById("input-toName").value.trim();
+          if (!toName) {
+            alert("Vui lòng nhập tên người nhận!");
+            return;
+          }
+          for (let i = 0; i < creatorQuestions.length; i++) {
+            if (!creatorQuestions[i].q.trim() || !creatorQuestions[i].a.trim()) {
+              alert(`Vui lòng điền đầy đủ câu hỏi và đáp án ở Câu ${i + 1}!`);
+              return;
+            }
+          }
+          currentStep = 2;
+          updateStepUI();
+        } else if (currentStep === 2) {
+          for (let i = 0; i < creatorCards.length; i++) {
+            if (!creatorCards[i].imgUrl) {
+              alert(`Vui lòng cung cấp link hoặc tải ảnh cho Thẻ ${i + 1}!`);
+              return;
+            }
+          }
+          currentStep = 3;
+          updateStepUI();
+        } else if (currentStep === 3) {
+          const toName = document.getElementById("input-toName").value.trim();
+          const message = document.getElementById("input-message").value.trim();
+          const contactLink = document.getElementById("input-contactLink").value.trim();
+          const confessionQuestion = document.getElementById("input-confessionQuestion").value.trim();
+          const acceptLabel = document.getElementById("input-acceptLabel").value.trim();
+          const rejectLabel = document.getElementById("input-rejectLabel").value.trim();
+          const musicPreset = selectMusic.value;
+          let musicCustom = "";
+          let youtubeId = "";
+
+          if (musicPreset === "youtube") {
+            youtubeId = extractYouTubeId(inputYoutubeUrl.value.trim());
+            if (!youtubeId) {
+              alert("Vui lòng dán link YouTube hợp lệ!");
+              return;
+            }
+          } else if (musicPreset === "custom") {
+            musicCustom = inputMusicCustom.value.trim();
+          }
+
+          if (!message) {
+            alert("Vui lòng viết lời nhắn tâm tình!");
+            return;
+          }
+          if (!contactLink) {
+            alert("Vui lòng nhập link liên hệ khi đồng ý!");
+            return;
+          }
+
+          const payload = {
+            toName,
+            questions: creatorQuestions.map((q) => ({ q: q.q, a: q.a, hint: q.hint })),
+            musicPreset,
+            musicCustom,
+            youtubeId,
+            cards: creatorCards,
+            message,
+            confessionQuestion: confessionQuestion || "Cậu đồng ý làm người yêu của mình nhé? ❤️",
+            acceptLabel: acceptLabel || "Đồng ý ❤️",
+            rejectLabel: rejectLabel || "Từ chối 😢",
+            contactLink
+          };
+
+          const payloadStr = JSON.stringify(payload);
+          lastCompressedPayload = LZString.compressToEncodedURIComponent(payloadStr);
+
+          updateOutputLink();
+
+          // Kiểm tra và hiển thị cảnh báo nếu đang chạy offline
+          const offlineBox = document.getElementById("offline-alert-box");
+          if (offlineBox) {
+            offlineBox.classList.toggle("hidden", !isLocalEnvironment());
+          }
+
+          currentStep = 4;
+          updateStepUI();
+        }
+      });
+
+      // Lắng nghe thay đổi tên miền tùy chỉnh để cập nhật link thời gian thực
+      const inputCustomDomain = document.getElementById("input-custom-domain");
+      if (inputCustomDomain) {
+        inputCustomDomain.addEventListener("input", updateOutputLink);
+      }
+
+      // Xử lý mở modal hướng dẫn deploy
+      const deployModal = document.getElementById("deploy-modal");
+      const btnOpenDeploy = document.getElementById("btn-open-deploy-guide");
+      const btnCloseDeploy = document.getElementById("btn-close-deploy");
+      const btnDeployOk = document.getElementById("btn-deploy-ok");
+
+      if (btnOpenDeploy && deployModal) {
+        btnOpenDeploy.addEventListener("click", () => deployModal.classList.remove("hidden"));
+      }
+      if (btnCloseDeploy && deployModal) {
+        btnCloseDeploy.addEventListener("click", () => deployModal.classList.add("hidden"));
+      }
+      if (btnDeployOk && deployModal) {
+        btnDeployOk.addEventListener("click", () => deployModal.classList.add("hidden"));
+      }
+
+      const offlineHeaderBadge = document.getElementById("offline-header-badge");
+      if (offlineHeaderBadge && deployModal) {
+        offlineHeaderBadge.addEventListener("click", () => deployModal.classList.remove("hidden"));
+      }
+      if (isLocalEnvironment()) {
+        const badge = document.getElementById("offline-header-badge");
+        if (badge) badge.classList.remove("hidden");
+      }
+
+      document.getElementById("btn-copy").addEventListener("click", async () => {
+        const link = document.getElementById("output-link").value;
+        const customDomain = document.getElementById("input-custom-domain")?.value.trim();
+
+        if ((link.startsWith("file://") || link.startsWith("null/") || window.location.protocol === "file:") && !customDomain) {
+          alert("⚠️ Lưu ý quan trọng:\nBạn đang sao chép link từ ổ đĩa máy tính (file://).\nNgười ấy mở trên điện thoại sẽ không xem được file trên máy bạn!\n\nHãy bấm vào nút 'Cách đưa lên mạng miễn phí (30 giây)' bên dưới để lấy link web công khai gửi cho người ấy nhé!");
+        }
+
+        try {
+          await navigator.clipboard.writeText(link);
+        } catch {
+          const copyBox = document.getElementById("output-link");
+          copyBox.select();
+          document.execCommand("copy");
+        }
+        const textEl = document.getElementById("copy-text");
+        const iconEl = document.getElementById("copy-icon");
+        textEl.textContent = "Đã sao chép!";
+        iconEl.textContent = "✅";
+        setTimeout(() => {
+          textEl.textContent = "Sao chép liên kết";
+          iconEl.textContent = "📋";
+        }, 2000);
+      });
+
+      document.getElementById("btn-test").addEventListener("click", () => {
+        const link = document.getElementById("output-link").value;
+        const hash = link.split("#")[1];
+        if (hash) {
+          window.location.hash = hash;
+        }
+      });
+    }
+
+    // --- Phân hệ Người nhận (Receiver Puzzle Controller) ---
+    let audioCtx = null;
+    let bgmInterval = null;
+    let customAudioEl = null;
+
+    let currentQIdx = 0;
+    let currentCardIdx = 0;
+    let isScratchCompleted = false;
+    let acceptScale = 1.0;
+
+    const ROMANTIC_PRESETS = {
+      until_i_found_you: "https://raw.githubusercontent.com/cimaepanlop/until-i-found-you.mp3/main/until-i-found-you.mp3",
+      perfect: "https://raw.githubusercontent.com/DarkDevil1613/valentine/main/love.mp3",
+      beautiful_in_white: "https://raw.githubusercontent.com/Bocha-Dev/beautiful-in-white.mp3/main/Shane_Filan_-_Beautiful_In_White_(mp3.pm).mp3",
+      canon_in_d: "https://raw.githubusercontent.com/Shelon349/canon-in-d-mp3/main/Canon%20and%20Gigue%20in%20D%20major%20(1).mp3"
+    };
+
+    function playRomanticBGM(preset, customUrl, youtubeId) {
+      stopRomanticBGM();
+
+      if (preset === "youtube") {
+        const yId = youtubeId || extractYouTubeId(customUrl || "");
+        if (yId) {
+          const ytAudio = document.getElementById("yt-audio-player");
+          if (ytAudio) {
+            const originParam = window.location.protocol.startsWith("http") ? window.location.origin : "https://www.youtube-nocookie.com";
+            ytAudio.src = `https://www.youtube-nocookie.com/embed/${yId}?autoplay=1&enablejsapi=1&loop=1&playlist=${yId}&playsinline=1&origin=${encodeURIComponent(originParam)}`;
+          }
+          return;
+        }
+      }
+
+      let audioUrl = "";
+      if (preset === "custom" || preset === "upload") {
+        audioUrl = customUrl;
+      } else if (ROMANTIC_PRESETS[preset]) {
+        audioUrl = ROMANTIC_PRESETS[preset];
+      } else if (preset === "canon") {
+        audioUrl = ROMANTIC_PRESETS.canon_in_d;
+      } else if (preset === "fur_elise") {
+        audioUrl = ROMANTIC_PRESETS.until_i_found_you;
+      } else if (preset === "lofi") {
+        audioUrl = ROMANTIC_PRESETS.perfect;
+      } else {
+        audioUrl = ROMANTIC_PRESETS.until_i_found_you;
+      }
+
+      if (!audioUrl) return;
+
+      customAudioEl = new Audio(audioUrl);
+      customAudioEl.loop = true;
+      customAudioEl.volume = 0.85;
+      customAudioEl.play().catch(e => {
+        console.log("Audio autoplay deferred until interaction:", e);
+      });
+    }
+
+    function stopRomanticBGM() {
+      if (customAudioEl) {
+        customAudioEl.pause();
+        customAudioEl.currentTime = 0;
+        customAudioEl = null;
+      }
+      const ytAudio = document.getElementById("yt-audio-player");
+      if (ytAudio) {
+        ytAudio.src = "";
+      }
+    }
+
+    function playSuccessChime() {
+      const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtxClass) return;
+      if (!audioCtx) audioCtx = new AudioCtxClass();
+      if (audioCtx.state === "suspended") audioCtx.resume();
+
+      const notes = [523.25, 659.25, 783.99, 1046.50];
+      notes.forEach((freq, i) => {
+        setTimeout(() => {
+          if (!audioCtx || audioCtx.state !== "running") return;
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0, audioCtx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.07, audioCtx.currentTime + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.45);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.5);
+        }, i * 110);
+      });
+    }
+
+    function renderCurrentQuiz() {
+      const stepTag = document.getElementById("recv-q-step");
+      const titleEl = document.getElementById("recv-q-title");
+      const inputEl = document.getElementById("input-quiz-answer");
+      const hintEl = document.getElementById("recv-hint-text");
+
+      const total = receiverData.questions.length;
+      stepTag.textContent = `Câu hỏi ${currentQIdx + 1}/${total}`;
+      titleEl.textContent = receiverData.questions[currentQIdx].q;
+      inputEl.value = "";
+      hintEl.textContent = "";
+      inputEl.focus();
+    }
+
+    function handleQuizSubmit() {
+      const inputEl = document.getElementById("input-quiz-answer");
+      const wrapper = document.getElementById("quiz-input-wrapper");
+      const hintEl = document.getElementById("recv-hint-text");
+
+      const ans = inputEl.value.trim().toLowerCase();
+      const currentQ = receiverData.questions[currentQIdx];
+      const correctAns = String(currentQ.a).trim().toLowerCase();
+
+      if (ans === correctAns) {
+        playSuccessChime();
+        hintEl.textContent = "Chính xác! 🎉";
+
+        setTimeout(() => {
+          if (currentQIdx + 1 < receiverData.questions.length) {
+            currentQIdx++;
+            renderCurrentQuiz();
+          } else {
+            // Đã trả lời hết tất cả câu hỏi -> chuyển sang Thẻ cào
+            document.getElementById("recv-screen-2").classList.add("hidden");
+            document.getElementById("recv-screen-scratch").classList.remove("hidden");
+            currentCardIdx = 0;
+            setupScratchCard();
+          }
+        }, 500);
+      } else {
+        wrapper.classList.add("animate-shake");
+        hintEl.textContent = currentQ.hint ? `Gợi ý: ${currentQ.hint}` : "Chưa chính xác, hãy thử lại nhé!";
+        setTimeout(() => {
+          wrapper.classList.remove("animate-shake");
+        }, 500);
+      }
+    }
+
+    function setupScratchCard() {
+      const card = receiverData.cards[currentCardIdx];
+      const underBox = document.getElementById("scratch-under-box");
+      const canvas = document.getElementById("scratch-canvas");
+      const noteContainer = document.getElementById("scratch-note-container");
+      const noteText = document.getElementById("scratch-note-text");
+      const btnNext = document.getElementById("btn-scratch-next");
+      const scratchHeading = document.getElementById("scratch-heading");
+
+      underBox.innerHTML = `<img src="${card.imgUrl}" alt="Ảnh kỷ niệm" class="w-full h-full object-cover select-none pointer-events-none">`;
+
+      const totalCards = receiverData.cards.length;
+      if (scratchHeading) {
+        scratchHeading.textContent = totalCards > 1
+          ? `Cào thẻ để mở ảnh bí mật (${currentCardIdx + 1}/${totalCards}) ❤️`
+          : "Cào thẻ để mở ảnh bí mật ❤️";
+      }
+
+      // Mỗi ảnh đều phải cào: bật canvas và vẽ lớp phủ cào
+      canvas.style.display = "block";
+      canvas.style.opacity = "1";
+      canvas.style.pointerEvents = "auto";
+      noteContainer.classList.add("hidden");
+      isScratchCompleted = false;
+
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      const w = canvas.width;
+      const h = canvas.height;
+
+      // Reset về source-over để tô lại lớp phủ mới
+      ctx.globalCompositeOperation = "source-over";
+      const grad = ctx.createLinearGradient(0, 0, w, h);
+      grad.addColorStop(0, "#475569");
+      grad.addColorStop(0.5, "#64748b");
+      grad.addColorStop(1, "#334155");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.fillStyle = "#f472b6";
+      ctx.font = "bold 16px sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("Cào ở đây nè ❤️", w / 2, h / 2);
+
+      let isScratching = false;
+      let lastCheck = 0;
+
+      function scratch(e) {
+        if (!isScratching || isScratchCompleted) return;
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const x = (clientX - rect.left) * (w / rect.width);
+        const y = (clientY - rect.top) * (h / rect.height);
+
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.beginPath();
+        ctx.arc(x, y, 14, 0, Math.PI * 2);
+        ctx.fill();
+
+        const now = Date.now();
+        if (now - lastCheck > 120) {
+          lastCheck = now;
+          checkScratchProgress();
+        }
+      }
+
+      function checkScratchProgress() {
+        if (isScratchCompleted) return;
+        const imgData = ctx.getImageData(0, 0, w, h);
+        const data = imgData.data;
+        let cleared = 0;
+        let sampled = 0;
+        for (let i = 3; i < data.length; i += 64) {
+          sampled++;
+          if (data[i] === 0) cleared++;
+        }
+        const pct = Math.round((cleared / sampled) * 100);
+
+        if (pct >= 85) {
+          isScratchCompleted = true;
+          canvas.style.opacity = "0";
+          canvas.style.pointerEvents = "none";
+          playSuccessChime();
+
+          noteText.textContent = card.note || "Kỷ niệm thật ngọt ngào ❤️";
+          if (currentCardIdx + 1 < receiverData.cards.length) {
+            btnNext.textContent = `Xem ảnh tiếp theo ➔ (${currentCardIdx + 2}/${receiverData.cards.length})`;
+          } else {
+            btnNext.textContent = "Đọc tâm thư ➔";
+          }
+          noteContainer.classList.remove("hidden");
+        }
+      }
+
+      canvas.onmousedown = (e) => { isScratching = true; scratch(e); };
+      window.onmousemove = (e) => { if (isScratching) scratch(e); };
+      window.onmouseup = () => { isScratching = false; };
+
+      canvas.ontouchstart = (e) => { isScratching = true; scratch(e); e.preventDefault(); };
+      canvas.ontouchmove = (e) => { scratch(e); e.preventDefault(); };
+      canvas.ontouchend = () => { isScratching = false; };
+    }
+
+    function renderClimaxScreen() {
+      const recvView = document.getElementById("receiver-view");
+      if (recvView) recvView.classList.remove("overflow-hidden");
+
+      const imgBox = document.getElementById("climax-img-box");
+      const toNameEl = document.getElementById("climax-toName");
+      const msgEl = document.getElementById("climax-message");
+      const qTextEl = document.getElementById("climax-question-text");
+      const statusEl = document.getElementById("climax-status");
+      const btnAccept = document.getElementById("btn-accept");
+      const btnReject = document.getElementById("btn-reject");
+
+      toNameEl.textContent = receiverData.toName || "người thương";
+      msgEl.textContent = receiverData.message || "";
+      qTextEl.textContent = receiverData.confessionQuestion || "Cậu đồng ý làm người yêu của mình nhé? ❤️";
+      btnAccept.textContent = receiverData.acceptLabel || "Đồng ý ❤️";
+      btnReject.textContent = receiverData.rejectLabel || "Từ chối 😢";
+
+      const firstCardImg = (receiverData.cards && receiverData.cards[0] && receiverData.cards[0].imgUrl) || "";
+      imgBox.innerHTML = firstCardImg ? `<img src="${firstCardImg}" alt="Avatar" class="w-full h-full object-cover">` : "";
+
+      statusEl.textContent = "";
+      acceptScale = 1.0;
+      btnAccept.disabled = false;
+      btnAccept.classList.remove("opacity-80", "pointer-events-none");
+      btnAccept.style.transform = "scale(1)";
+      btnAccept.style.zIndex = "20";
+
+      btnReject.style.display = "block";
+      btnReject.style.position = "";
+      btnReject.style.left = "";
+      btnReject.style.top = "";
+      btnReject.style.zIndex = "999999";
+      btnReject.className = "px-5 py-2.5 bg-slate-700 hover:bg-slate-600 text-slate-300 font-medium text-xs rounded-xl transition duration-150 select-none cursor-pointer";
+    }
+
+    function evadeRejectButton(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      const btnReject = document.getElementById("btn-reject");
+      const btnAccept = document.getElementById("btn-accept");
+      if (!btnReject) return;
+
+      const btnW = btnReject.offsetWidth || 90;
+      const btnH = btnReject.offsetHeight || 38;
+      const pad = 20;
+      const maxX = Math.max(pad, window.innerWidth - btnW - pad);
+      const maxY = Math.max(pad, window.innerHeight - btnH - pad);
+
+      let randX = Math.floor(pad + Math.random() * (maxX - pad));
+      let randY = Math.floor(pad + Math.random() * (maxY - pad));
+
+      // Né tránh đè lên nút Đồng ý nếu màn hình còn khoảng trống
+      if (btnAccept) {
+        const acceptRect = btnAccept.getBoundingClientRect();
+        for (let tries = 0; tries < 8; tries++) {
+          const overlapX = randX + btnW > acceptRect.left && randX < acceptRect.right;
+          const overlapY = randY + btnH > acceptRect.top && randY < acceptRect.bottom;
+          if (!overlapX || !overlapY) {
+            break;
+          }
+          randX = Math.floor(pad + Math.random() * (maxX - pad));
+          randY = Math.floor(pad + Math.random() * (maxY - pad));
+        }
+      }
+
+      // Đảm bảo nút Từ chối luôn luôn nằm trên cùng (z-index cực cao), không bao giờ bị nút Đồng ý che khuất
+      btnReject.style.position = "fixed";
+      btnReject.style.zIndex = "999999";
+      btnReject.style.left = `${randX}px`;
+      btnReject.style.top = `${randY}px`;
+      btnReject.className = "px-5 py-2.5 bg-slate-900/95 border-2 border-pink-400 text-slate-100 font-bold text-xs rounded-xl shadow-2xl transition duration-150 select-none cursor-pointer";
+
+      // Nút Đồng ý to lên dần dần không giới hạn, tầng hiển thị thấp hơn nút Từ chối
+      acceptScale += 0.35;
+      if (btnAccept) {
+        btnAccept.style.zIndex = "20";
+        btnAccept.style.transform = `scale(${acceptScale})`;
+        btnAccept.style.transformOrigin = "center center";
+        btnAccept.style.transition = "transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)";
+      }
+    }
+
+    function handleAccept() {
+      const btnAccept = document.getElementById("btn-accept");
+      const btnReject = document.getElementById("btn-reject");
+      const statusEl = document.getElementById("climax-status");
+
+      btnAccept.disabled = true;
+      btnAccept.classList.add("opacity-80", "pointer-events-none");
+      if (btnReject) btnReject.style.display = "none";
+
+      statusEl.textContent = "Cảm ơn cậu đã đồng ý! ❤️ Đang chuyển hướng sau 3 giây...";
+
+      playSuccessChime();
+
+      if (typeof confetti === "function") {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+
+        setTimeout(() => {
+          confetti({
+            particleCount: 80,
+            angle: 60,
+            spread: 60,
+            origin: { x: 0, y: 0.7 }
+          });
+          confetti({
+            particleCount: 80,
+            angle: 120,
+            spread: 60,
+            origin: { x: 1, y: 0.7 }
+          });
+        }, 350);
+
+        setTimeout(() => {
+          confetti({
+            particleCount: 60,
+            spread: 100,
+            origin: { y: 0.5 },
+            colors: ["#f43f5e", "#ec4899", "#f472b6", "#fda4af", "#ffffff"]
+          });
+        }, 1000);
+      }
+
+      setTimeout(() => {
+        if (receiverData && receiverData.contactLink) {
+          window.location.href = receiverData.contactLink;
+        }
+      }, 3000);
+    }
+
+    function initReceiverView(data) {
+      currentQIdx = 0;
+      currentCardIdx = 0;
+      isScratchCompleted = false;
+      acceptScale = 1.0;
+
+      const recvView = document.getElementById("receiver-view");
+      if (recvView) recvView.classList.add("overflow-hidden");
+
+      document.getElementById("recv-toName-1").textContent = data.toName || "bạn";
+
+      document.getElementById("recv-screen-1").classList.remove("hidden");
+      document.getElementById("recv-screen-2").classList.add("hidden");
+      document.getElementById("recv-screen-scratch").classList.add("hidden");
+      document.getElementById("recv-screen-3").classList.add("hidden");
+    }
+
+    function initReceiverEventListeners() {
+      document.getElementById("btn-open-gift").addEventListener("click", () => {
+        playRomanticBGM(receiverData.musicPreset, receiverData.musicCustom, receiverData.youtubeId);
+        document.getElementById("recv-screen-1").classList.add("hidden");
+        document.getElementById("recv-screen-2").classList.remove("hidden");
+        renderCurrentQuiz();
+      });
+
+      document.getElementById("btn-quiz-submit").addEventListener("click", handleQuizSubmit);
+      document.getElementById("input-quiz-answer").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") handleQuizSubmit();
+      });
+
+      document.getElementById("btn-scratch-next").addEventListener("click", () => {
+        if (currentCardIdx + 1 < receiverData.cards.length) {
+          currentCardIdx++;
+          setupScratchCard();
+        } else {
+          document.getElementById("recv-screen-scratch").classList.add("hidden");
+          document.getElementById("recv-screen-3").classList.remove("hidden");
+          renderClimaxScreen();
+        }
+      });
+
+      const btnReject = document.getElementById("btn-reject");
+      btnReject.addEventListener("mouseover", evadeRejectButton);
+      btnReject.addEventListener("touchstart", evadeRejectButton, { passive: false });
+      btnReject.addEventListener("click", evadeRejectButton);
+
+      document.getElementById("btn-accept").addEventListener("click", handleAccept);
+    }
+
+    function parsePayload(hashString) {
+      if (!hashString) return null;
+      try {
+        const rawJson = LZString.decompressFromEncodedURIComponent(hashString);
+        if (!rawJson) return null;
+        const parsed = JSON.parse(rawJson);
+        if (!parsed || typeof parsed !== "object") return null;
+        if (!parsed.toName && !parsed.message) return null;
+
+        // Xử lý backward compatibility với schema cũ
+        let questions = parsed.questions;
+        if (!questions || !Array.isArray(questions) || questions.length === 0) {
+          questions = [
+            {
+              q: "Nhập mã số bí mật",
+              a: parsed.passCode || "1402",
+              hint: parsed.hint || ""
+            }
+          ];
+        }
+
+        let cards = parsed.cards;
+        if (!cards || !Array.isArray(cards) || cards.length === 0) {
+          cards = [
+            {
+              imgUrl: parsed.imgUrl || "",
+              note: ""
+            }
+          ];
+        }
+
+        return {
+          toName: parsed.toName || "",
+          questions,
+          musicPreset: parsed.musicPreset || "until_i_found_you",
+          musicCustom: parsed.musicCustom || "",
+          youtubeId: parsed.youtubeId || extractYouTubeId(parsed.musicCustom || ""),
+          cards,
+          message: parsed.message || "",
+          confessionQuestion: parsed.confessionQuestion || "Cậu đồng ý làm người yêu của mình nhé? ❤️",
+          acceptLabel: parsed.acceptLabel || "Đồng ý ❤️",
+          rejectLabel: parsed.rejectLabel || "Từ chối 😢",
+          contactLink: parsed.contactLink || ""
+        };
+      } catch (e) {
+        console.error("Lỗi giải mã payload:", e);
+        return null;
+      }
+    }
+
+    function route() {
+      const hash = window.location.hash.replace(/^#/, "");
+      const creatorEl = document.getElementById("creator-view");
+      const receiverEl = document.getElementById("receiver-view");
+      const errorEl = document.getElementById("error-view");
+
+      creatorEl.classList.add("hidden");
+      receiverEl.classList.add("hidden");
+      errorEl.classList.add("hidden");
+
+      if (!hash) {
+        receiverData = null;
+        creatorEl.classList.remove("hidden");
+        updateStepUI();
+        return;
+      }
+
+      try {
+        receiverData = parsePayload(hash);
+
+        if (receiverData) {
+          receiverEl.classList.remove("hidden");
+          initReceiverView(receiverData);
+        } else {
+          errorEl.classList.remove("hidden");
+        }
+      } catch (err) {
+        console.error("Routing exception:", err);
+        errorEl.classList.remove("hidden");
+      }
+    }
+
+    window.addEventListener("hashchange", route);
+    window.addEventListener("DOMContentLoaded", () => {
+      initCreator();
+      initReceiverEventListeners();
+
+      const btnErrorHome = document.getElementById("btn-error-home");
+      if (btnErrorHome) {
+        btnErrorHome.addEventListener("click", () => {
+          window.location.hash = "";
+        });
+      }
+
+      route();
+    });
+  </script>
+</body>
+</html>
