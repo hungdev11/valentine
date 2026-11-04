@@ -497,7 +497,8 @@
       } else if (!isLocalEnvironment()) {
         base = (window.location.origin + window.location.pathname).replace(/\/+$/, "");
       } else {
-        base = window.location.href.split("#")[0];
+        // Mặc định liên kết công khai GitHub Pages khi tạo offline
+        base = "https://hungdev11.github.io/valentine/";
       }
 
       const fullUrl = base + "#" + lastCompressedPayload;
